@@ -210,4 +210,91 @@ print(moy_MC_I_2)
 print(mse_MC_I_2)
 #La methode de Monte Carlo par tirage blanc/noir appliquée à g a un mse de 0.03 et une moyenne de 2.55
 
+#Exercice 3 :
+#*********************************
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Exercice 4 : Chaine de Markov et Inférence Bayésienne
+#*****************************************************
+
+#Expression de la loi à priori de theta
+
+rtheta=runif(100,0,1)   #tirage uniforme des valeures aléatoires
+dtheta=dunif(rtheta)    #Expression de la densité
+#Vérification de la cohérence graphique
+truehist(rtheta, main="Lois à priori de Theta entre 0 et 1")
+lines(rtheta, dtheta, col="red")
+
+#Densité de la loi à Posteriori d_target
+
+# La varibale qualitative (statut mutant) suit une loi Binomiale
+# La vraissemblance P[X=70] sachant theta s'exprime donc en dbinom en focntion de dtheta
+P_X70_theta=dbinom(dtheta,100,0.7)
+
+# Expression de la densité de la loi cible
+d_target = function(x) {     #x ici est notre variable à estimer c'est à dire pi[theta]
+  return(x*P_X70_theta/0.7)    # la densité est le produit de pi[theta] et de la vraissemblance à 70 divisé par la probabilité de tirer un mutant
+}
+#Visualisation graphique de d_target
+val_x = seq(from=-10, to=8, len=100)
+val_y = d_target(val_x)
+plot(val_x, val_y, col="red", type="l", main = "d_target pour P[X=70]")
+     
+#Choix de la loi de proposition : loi normale
+rprop <- function(from_x) {
+  return(rnorm(1, mean=from_x, sd=1))
+}
+
+dprop <- function(to_x, from_x) {
+  return(dnorm(to_x, mean=from_x, sd=1))
+}
+
+#Expression de la fonction cible selon un algo MCMC
+r_target <- function(n){
+  x = (rep(NA,n)) #Pas d'allocation de mémoire
+  x[1] = 5
+  for (i in 1:(n-1)){
+    yi = rprop(x[i]) #Pour chaque xi on propose une valeur yi suivant la loi de proposition (démarche pas à pas)
+    p = min (c(1, d_target(yi)/d_target(x[i])) * (dprop(x[i], yi)/dprop(yi, x[i])))
+    u = runif(1)
+    if(u <= p){
+      x[i+1] = yi    #On accepte ou on rejette yi selon une règle d'acceptation/rejet.
+    }else{
+      x[i+1] = x[i]
+    }
+  }  
+  return(x)         
+}
+
+n = 10000
+x = r_target(n)
+
+truehist(x, col="gray", main="r_target selon un algorithme MCMC")
+val_x = seq(from=-10, to=10, len=1000)
+val_y = d_target(val_x)
+lines(val_x, val_y, col="red", lwd=2)
+#d_target et r_target ne se supperposent pas. I doit y avoir un souci dans notre code.
+
+#Malheureusement nous ne sommes pas allées plus loin pour cet exercice par manque de compréhension des notions bayésiennes.

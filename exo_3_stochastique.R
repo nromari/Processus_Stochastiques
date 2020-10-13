@@ -74,7 +74,7 @@ my_rdiscret_one = function(){
 }
 
 cat("valeur suivant la loi discrète X:", my_rdiscret_one()) # une des valeurs X de l'enoncé
-### La fonction my_rdiscret renvoie n valeurs tirées de la loi X
+### La fonction my_rdiscret renvoie n  valeurs tirées de la loi X
 
 my_rdiscret = function(n){
   n_discret = rep(NA, n) # initialisation d'un vecteur à n valeurs
@@ -86,8 +86,8 @@ my_rdiscret = function(n){
 
 ## Verification de notre implementation en faisant un tirage aléatoire avec remise des valeurs x, avec leurs probabilités associées
 n = 10000
-plot(table(my_rdiscret(n))/n, col="blue")
-valX = c(-3,1.3,7,15.2) # valeurs à tirer
+plot(table(my_rdiscret(n))/n, col="blue", main="Distribution de variables aléatoires X \n suivant une loi discrète", xlab="variables X", ylab="Probabilités")
+valX = c(-3, 1.3, 7, 15.2) # valeurs à tirer
 points(valX, table(sample(valX, n, replace=TRUE, prob=c(0.1, 0.4, 0.3, 0.2)))/n, col='red')
 
 # Les deux courbes sont correlées
@@ -142,7 +142,7 @@ my_plaplace(c(-0.8, -0.6, -0.4, -0.2, 0, 2, 4, 6, 8, 10))
 # Exemple
 val_x = seq(from=-4, to=4, len=100)
 val_y = my_plaplace(val_x)
-plot(val_x, val_y, col="red", type="l", main="Fonction de repartion de la loi de Laplace")
+plot(val_x, val_y, col="red", type="l", main="Fonction de repartion de la loi de Laplace", xlab="variables X", ylab="Probabilités")
 
 ### Fonction quantile qlaplace()
 #Si p < 1/2, qlaplace(p) = log(2*p)
@@ -189,31 +189,13 @@ x = my_rlaplace(n)
 head(x)
 
 # Verification de notre implémentation de Laplace
-truehist(x, col="yellow", main="loi de Laplace")
+truehist(x, col="yellow", main="Distribution des variables suivant une loi de Laplace", xlab="variables aléatoires", ylab="probabilités" )
 
-val_x = seq(from = -10, to = 10, len = 1000)
+val_x = seq(from = -7, to = 7, len = 1000)
 val_y = my_dlaplace(val_x)
-lines(val_x, val_y, col = "blue")
+lines(val_x, val_y, col = "blue", lwt=1)
 
 # les deux courbes se superposent
-
-h = function(x) {
-  return(dnorm(x)/my_dlaplace(x))
-}
-
-
-val_x = seq(from=-10, to=10, len=1000)
-val_y = h(val_x)
-plot(val_x, val_y, col="red", type="l")
-
-m = sqrt(2*exp(1)/pi)
-abline(h=m, lty=2)
-
-val_x = seq(from=-4, to=4, len=1000)
-val_y = dnorm(val_x)
-plot(val_x, val_y, col="red", type="l", ylim=c(0, 0.6))
-val_y = m*my_dlaplace(val_x)
-lines(val_x, val_y, col="blue")
 
 
 ####### Loi normale #######
@@ -241,17 +223,18 @@ plot(val_x, val_y, col="red", type="l", main="Courbe de la fonction h(x)")
 m = sqrt(2*exp(1)/pi)
 
 abline(h = m, lty=2)
+
 # Nous voyons que la droite y = m passe par le maximum de la courbe en rouge. ce qui nous permet de dire que 
 # que m = sqrt(2*exp(1)/pi), est la plus petite valeur qui permet de verifier la condition f(x)<=m*g(x) quelque soit x réel.
 
 # Verification de la condition avec la valeur de m
 val_x = seq(from=-4, to=4, len=1000) # vecteur de 1000 valeurs entre -4 et 4
 val_y = dnorm(val_x) # Distribution de la loi normale des 1000 valeurs du vecteurs (fonction f(x))
-plot(val_x, val_y, col="red", type="l", ylim=c(0, 0.6), main="Verification de la condition f(x) <= m * g(x) ")
+plot(val_x, val_y, col="blue", type="l", ylim=c(0, 0.7), main="Verification de la condition f(x) <= m * g(x)", xlab="variables alétoires X", ylab="Probabilité")
 val_y = m*my_dlaplace(val_x) # fonction g(x)
-lines(val_x, val_y, col="blue")
+lines(val_x, val_y, col="red")
 
-# Nous voyons bien que pour x réel la fonction blue est au dessus de celle rouge
+# Nous voyons bien que pour x réel la fonction rouge (g(x)) est au dessus de celle bleue (f(x))
 
 ### Implémentation de la fonction my_rnorm_rejet(n)
 
@@ -267,13 +250,14 @@ n = 100000
 x = my_rnorm_rejet(n)
 head(x)
 
-truehist(x)
+truehist(x, col="yellow", main="Loi normale", xlab="variables aléatoires x", ylab="Probabilités")
 val_x = seq(from = -4, to = 4, len = 1000)
 val_y = dnorm(val_x)
 lines(val_x, val_y, col = "red", lwd = 2)
 
 rejet_1 = length(x)/n
 rejet_2 = 1/m
+
 
 # les deux valeurs sont très très proches. Nous pouvons donc dire notre implémentation a bien le taux de rejet attendu
 
@@ -304,14 +288,14 @@ plot(val_x, val_y, col="red", type="l", main="Représentation graphique de my_dt
 
 # A-) Loi uniforme
 my_rprop = function(x, delta){
-  return(runif(1, x-delta, x-delta))
+  return(runif(1, x-delta, x+delta))
 }
 
 my_rtarget = function(n){
   valX = rep(NA, n)
-  valX[1] = -15
+  valX[1] = -10
   for(i in 2:n){
-    valY = my_rprop(valX[i-1], 10)
+    valY = my_rprop(valX[i-1], 1)
     seuil = min(1, (my_dtarget(valY)/my_dtarget(valX[i-1])))
     U = runif(1)
     if( U <= seuil){
@@ -324,16 +308,13 @@ my_rtarget = function(n){
   return(valX)
 }
 
-# Exemple
-
 n = 100000
 res_target = my_rtarget(n)
-truehist(res_target)
+truehist(res_target, col="yellow", main= "Distribution de variables aléatoires aléatoire continue \n par simulation MCMC: Loi uniforme", xlab="variables aléatoires X", ylab="Probabilités" )
 
-valX = seq(-10, 10, len = 1000)
+valX = seq(-10, 12, len = 1000)
 valY = my_dtarget(valX)
 lines(valX, valY, type="l", col="red")
-
 ## B-) Loi normale
 
 rprop <- function(from_x) {
@@ -346,6 +327,7 @@ dprop <- function(to_x, from_x) {
 
 my_rtarget <- function(n){
   x = rep(NA,n)
+  x[1]=5
   for (i in 1:(n-1)){
     yi = rprop(x[i]) 
     p = min (c(1, my_dtarget(yi)/my_dtarget(x[i])) * (dprop(x[i], yi)/dprop(yi, x[i])))
@@ -361,8 +343,10 @@ my_rtarget <- function(n){
 
 n = 100000
 x = my_rtarget(n)
-
-truehist(x, col="gray")
+head(x)
+truehist(x, col="yellow",main= "Distribution de variables aléatoires aléatoire continue \n par simulation MCMC: Loi normale", xlab="variables aléatoires X", ylab="Probabilités" )
 val_x <- seq(from=-10, to=15, len=1000)
 val_y <- my_dtarget(val_x)
 lines(val_x, val_y, col="red", lwd=2)
+
+summary(x)
